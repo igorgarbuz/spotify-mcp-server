@@ -1,8 +1,7 @@
-import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 import type { MaxInt } from '@spotify/web-api-ts-sdk';
 import { z } from 'zod';
 import type { SpotifyHandlerExtra, SpotifyTrack, tool } from './types.js';
-import { formatDuration, handleSpotifyRequest } from './utils.js';
+import { formatDuration, handleSpotifyRequest, percent } from './utils.js';
 
 function isTrack(item: any): item is SpotifyTrack {
   return (
@@ -354,13 +353,73 @@ const getRecentlyPlayed: tool<{
         },
       ],
     };
-  }
-}
+  },
+};
 
+const getTrackAudioFeatures: tool<{ trackId: z.ZodString }> = {
+  name: 'getTrackAudioFeatures',
+  description:
+    'Return Audio Features (tempo, key, danceability, vocals proxy, …) for one track',
+  schema: { trackId: z.string().describe('Spotify track ID') },
+  handler: async ({ trackId }, _extra: SpotifyHandlerExtra) => {
+    const f = await handleSpotifyRequest((sp) =>
+      sp.tracks.audioFeatures(trackId),
+    );
+    if (!f) {
+      return { content: [{ type: 'text', text: 'No audio-features found' }] };
+    }
+
+    const vocalLikelihood = 1 - (f.instrumentalness ?? 0);
+
+    const lines = [
+      `Tempo: ${f.tempo} BPM`,
+      `Key: ${f.key} (${f.mode === 1 ? 'major' : 'minor'})`,
+      `Time Sig.: ${f.time_signature}/4`,
+      `Loudness: ${f.loudness} dB`,
+      `Danceability: ${percent(f.danceability)}`,
+      `Energy: ${percent(f.energy)}`,
+      `Acousticness: ${percent(f.acousticness)}`,
+      `Instrumentalness: ${percent(f.instrumentalness)}`,
+      `Speechiness: ${percent(f.speechiness)}`,
+      `Liveness: ${percent(f.liveness)}`,
+      `Valence: ${percent(f.valence)}`,
+      `Estimated vocals present: ${percent(vocalLikelihood)}`,
+    ].join('\n');
+
+    return { content: [{ type: 'text', text: `# Audio Features\n${lines}` }] };
+  },
+};
+
+const getTrackAudioAnalysis: tool<{ trackId: z.ZodString }> = {
+  name: 'getTrackAudioAnalysis',
+  description:
+    'Return high-level counts from /audio-analysis (sections, bars, beats, segments)',
+  schema: { trackId: z.string().describe('Spotify track ID') },
+  handler: async ({ trackId }, _extra: SpotifyHandlerExtra) => {
+    const a = await handleSpotifyRequest((sp) =>
+      sp.tracks.audioAnalysis(trackId),
+    );
+    if (!a) {
+      return { content: [{ type: 'text', text: 'No audio-analysis found' }] };
+    }
+
+    const text = `# Audio Analysis
+    Sections: ${a.sections.length}
+    Bars: ${a.bars.length}
+    Beats: ${a.beats.length}
+    Segments: ${a.segments.length}`;
+
+    return { content: [{ type: 'text', text }] };
+  },
+};
+
+/* ---------- export list ---------- */
 export const readTools = [
   searchSpotify,
   getNowPlaying,
   getMyPlaylists,
   getPlaylistTracks,
   getRecentlyPlayed,
+  // getTrackAudioFeatures, // Deprecated and requires extended access
+  // getTrackAudioAnalysis, // Deprecated and requires extended access
 ];

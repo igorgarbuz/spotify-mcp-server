@@ -3,11 +3,11 @@
 <h1>Spotify MCP Server</h1>
 </div>
 
-A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that enables AI assistants like Cursor & Claude to control Spotify playback and manage playlists.
+A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) Node server that enables AI assistants like Cursor & Claude to control Spotify playback and manage playlists.
 
 <details>
 <summary>Contents</summary>
-  
+
 - [Example Interactions](#example-interactions)
 - [Tools](#tools)
   - [Read Operations](#read-operations)
@@ -29,7 +29,8 @@ A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) se
 
 ## Tools
 
-### Read Operations
+<details>
+<summary>Read Operations</summary>
 
 1. **searchSpotify**
 
@@ -83,7 +84,10 @@ A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) se
    - **Returns**: If tracks are found it returns a formatted list of recently played tracks else a message stating: "You don't have any recently played tracks on Spotify".
    - **Example**: `getRecentlyPlayed({ limit: 10 })`
 
-### Play / Create Operations
+</details>
+
+<details>
+<summary>Play / Create Operations</summary>
 
 1. **playMusic**
 
@@ -153,6 +157,8 @@ A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) se
    - **Example**: `addToQueue({ uri: "spotify:track:6rqhFgbbKwnb9MLmUQDhG6" })`
    - **Alternative**: `addToQueue({ type: "track", id: "6rqhFgbbKwnb9MLmUQDhG6" })`
 
+</details>
+
 ## Setup
 
 ### Prerequisites
@@ -164,8 +170,8 @@ A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) se
 ### Installation
 
 ```bash
-git clone https://github.com/marcelmarais/spotify-mcp-server.git
-cd spotify-mcp-server
+git clone https://github.com/igorgarbuz/spotify-mcp.git
+cd spotify-mcp
 npm install
 npm run build
 ```
@@ -178,9 +184,8 @@ npm run build
 4. Fill in the app name and description
 5. Accept the Terms of Service and click "Create"
 6. In your new app's dashboard, you'll see your **Client ID**
-7. Click "Show Client Secret" to reveal your **Client Secret**
-8. Click "Edit Settings" and add a Redirect URI (e.g., `http://localhost:8888/callback`)
-9. Save your changes
+7. Click "Edit Settings" and add a Redirect URI (e.g., `http://127.0.0.1:8888/callback`)
+8. Save your changes
 
 ### Spotify API Configuration
 
@@ -191,19 +196,23 @@ Create a `spotify-config.json` file in the project root (you can copy and modify
 cp spotify-config.example.json spotify-config.json
 ```
 
-Then edit the file with your credentials:
+Then edit the file with your client id:
 
 ```json
 {
-  "clientId": "your-client-id",
-  "clientSecret": "your-client-secret",
-  "redirectUri": "http://localhost:8888/callback"
+  "clientId": "you-must-add-your-client-id-here",
+  "redirectUri": "http://127.0.0.1:8888/callback",
+  "accessToken": "your-access-token-filled-automatically",
+  "refreshToken": "your-refresh-token-filled-automatically",
+  "accessTokenExpiresAt": 0 // unix ms timestamp filled automatically
 }
 ```
 
+Note: You do not need a client secret for this application.
+
 ### Authentication Process
 
-The Spotify API uses OAuth 2.0 for authentication. Follow these steps to authenticate your application:
+The Spotify API uses OAuth 2.0 with the PKCE extension for secure authentication. You do NOT need a client secret for this app.
 
 1. Run the authentication script:
 
@@ -211,24 +220,21 @@ The Spotify API uses OAuth 2.0 for authentication. Follow these steps to authent
 npm run auth
 ```
 
-2. The script will generate an authorization URL. Open this URL in your web browser.
+2. The script will open your browser to the Spotify authorization page.
 
-3. You'll be prompted to log in to Spotify and authorize your application.
+3. Log in to Spotify and authorize your application.
 
-4. After authorization, Spotify will redirect you to your specified redirect URI with a code parameter in the URL.
+4. After authorization, Spotify will redirect you to your specified redirect URI. The app will automatically handle the code exchange and save your tokens.
 
 5. The authentication script will automatically exchange this code for access and refresh tokens.
 
-6. These tokens will be saved to your `spotify-config.json` file, which will now look something like:
-
-```json
+6. These tokens will be saved to your `spotify-config.json` file.
 {
   "clientId": "your-client-id",
-  "clientSecret": "your-client-secret",
-  "redirectUri": "http://localhost:8888/callback",
-  "accessToken": "BQAi9Pn...kKQ",
-  "refreshToken": "AQDQcj...7w",
-  "expiresAt": 1677889354671
+  "redirectUri": "http://127.0.0.1:8888/callback",
+  "accessToken": "your-access-token-filled-automatically",
+  "refreshToken": "your-refresh-token-filled-automatically",
+  "accessTokenExpiresAt": 0 // unix ms timestamp filled automatically
 }
 ```
 
@@ -243,7 +249,7 @@ To use your MCP server with Claude Desktop, add it to your Claude configuration:
   "mcpServers": {
     "spotify": {
       "command": "node",
-      "args": ["spotify-mcp-server/build/index.js"]
+      "args": ["absolute/path/to/spotify-mcp/build/index.js"]
     }
   }
 }
@@ -252,7 +258,7 @@ To use your MCP server with Claude Desktop, add it to your Claude configuration:
 For Cursor, go to the MCP tab in `Cursor Settings` (command + shift + J). Add a server with this command:
 
 ```bash
-node path/to/spotify-mcp-server/build/index.js
+node absolute/path/to/spotify-mcp/build/index.js
 ```
 
 To set up your MCP correctly with Cline ensure you have the following file configuration set `cline_mcp_settings.json`:
@@ -262,7 +268,7 @@ To set up your MCP correctly with Cline ensure you have the following file confi
   "mcpServers": {
     "spotify": {
       "command": "node",
-      "args": ["~/../spotify-mcp-server/build/index.js"],
+      "args": ["/absolute/path/to/spotify-mcp/build/index.js"],
       "autoApprove": ["getListeningHistory", "getNowPlaying"]
     }
   }
@@ -270,3 +276,7 @@ To set up your MCP correctly with Cline ensure you have the following file confi
 ```
 
 You can add additional tools to the auto approval array to run the tools without intervention.
+
+## TODO
+- [ ] Add support for spotify metadata <= These API are deprecated
+- [x] Improve authentication process with [PKCE Flow](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) using [GitHub Example](https://github.com/spotify/web-api-examples/blob/master/authorization/authorization_code_pkce/public/app.js)
