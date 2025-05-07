@@ -189,14 +189,14 @@ npm run build
 
 ### Spotify API Configuration
 
-Create a `spotify-config.json` file in the project root (you can copy and modify the provided example):
+Create a `spotify-config.json` file in the project root:
 
 ```bash
 # Copy the example config file
 cp spotify-config.example.json spotify-config.json
 ```
 
-Then edit the file with your client id:
+Then edit the file by adding your client id only. The `accessToken`, `refreshToken` and `accessTokenExpiresAt` will be managed automatically. The `redirectUri` should be the same as the one you added in the Spotify Developer Dashboard. `127.0.0.1` is the simplest option for the local MCP server.
 
 ```json
 {
@@ -204,15 +204,13 @@ Then edit the file with your client id:
   "redirectUri": "http://127.0.0.1:8888/callback",
   "accessToken": "your-access-token-filled-automatically",
   "refreshToken": "your-refresh-token-filled-automatically",
-  "accessTokenExpiresAt": 0 // unix ms timestamp filled automatically
+  "accessTokenExpiresAt": 0
 }
 ```
 
-Note: You do not need a client secret for this application.
-
 ### Authentication Process
 
-The Spotify API uses OAuth 2.0 with the PKCE extension for secure authentication. You do NOT need a client secret for this app.
+The Spotify API uses OAuth 2.0 with the [PKCE extension](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) for secure authentication. You do NOT need a client secret for this app.
 
 1. Run the authentication script:
 
@@ -229,12 +227,14 @@ npm run auth
 5. The authentication script will automatically exchange this code for access and refresh tokens.
 
 6. These tokens will be saved to your `spotify-config.json` file.
+
+```json
 {
   "clientId": "your-client-id",
   "redirectUri": "http://127.0.0.1:8888/callback",
   "accessToken": "your-access-token-filled-automatically",
   "refreshToken": "your-refresh-token-filled-automatically",
-  "accessTokenExpiresAt": 0 // unix ms timestamp filled automatically
+  "accessTokenExpiresAt": 0
 }
 ```
 
@@ -276,7 +276,3 @@ To set up your MCP correctly with Cline ensure you have the following file confi
 ```
 
 You can add additional tools to the auto approval array to run the tools without intervention.
-
-## TODO
-- [ ] Add support for spotify metadata <= These API are deprecated
-- [x] Improve authentication process with [PKCE Flow](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) using [GitHub Example](https://github.com/spotify/web-api-examples/blob/master/authorization/authorization_code_pkce/public/app.js)
