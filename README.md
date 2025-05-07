@@ -1,9 +1,11 @@
 <div align="center" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
 <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" width="30" height="30">
-<h1>Spotify MCP Server</h1>
+<h1>Spotify MCP Node Server</h1>
 </div>
 
-A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) Node server that enables AI assistants like Cursor & Claude to control Spotify playback and manage playlists.
+A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) Node server that enables AI assistants like Cursor & Claude to control Spotify playback and manage playlists. Great for music discovery and playlist management. Try asking Claude for some less-known tracks in a genre or similar to an artist. You can start by asking to create a new playlist or update an existing playlist providing its name.
+
+To comply with Spotify’s Developer Terms, you must have a Spotify Premium account to use this server. Additionally, if you’re using MCP-enabled AI assistants (such as Claude) with this server, you must opt out of data sharing for model training.
 
 <details>
 <summary>Contents</summary>
