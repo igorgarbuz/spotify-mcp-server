@@ -1,9 +1,17 @@
-<div align="center" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-<img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" width="30" height="30">
+<div align="center">
+  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" width="30" height="30" style="vertical-align:middle; margin-right:8px;">
+    <picture style="vertical-align:middle;">
+      <source srcset="https://mintlify.s3.us-west-1.amazonaws.com/mcp/logo/dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="https://mintlify.s3.us-west-1.amazonaws.com/mcp/logo/light.svg" width="auto" height="30" alt="MCP Logo">
+    </picture>
+</div>
 <h1>Spotify MCP Node Server</h1>
 </div>
 
-A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) Node server that enables AI assistants like Cursor & Claude to control Spotify playback and manage playlists. Great for music discovery and playlist management. Try asking Claude for some less-known tracks in a genre or similar to an artist. You can start by asking to create a new playlist or update an existing playlist providing its name.
+A lightweight [Model Context Protocol (MCP)](https://modelcontextprotocol.io) Node server that enables AI assistants like [Claude Desktop](https://claude.ai/download), or IDEs like [Cursor](https://cursor.sh) and [Windsurf](https://windsurf.io) to control Spotify playback and manage playlists. Great for music discovery and creative playlist curation. Try asking Claude for some less-known tracks in a genre or similar to an artist. You can start by asking to create a new playlist or update an existing playlist.
+
+If you are not tech-savvy, but you still want to interact with your Spotify library in a natural language, as of May 2025 the [Claude Desktop](https://claude.ai/download) is the recommended way to use this software. Just follow the [integration guide](#integrating-with-claude-desktop-and-cursor-via-cline-model-extension) below.
 
 To comply with Spotify’s Developer Terms, you must have a Spotify Premium account to use this server. Additionally, if you’re using MCP-enabled AI assistants (such as Claude) with this server, you must opt out of data sharing for model training.
 
@@ -25,7 +33,7 @@ To comply with Spotify’s Developer Terms, you must have a Spotify Premium acco
 
 ## Example Interactions
 
-- _"Play Elvis's first song"_
+- _"Play The Beatles less known bootlegs"_
 - _"Create a Taylor Swift / Slipknot fusion playlist"_
 - _"Copy all the techno tracks from my workout playlist to my work playlist"_
 
@@ -242,9 +250,11 @@ npm run auth
 
 7. The server will automatically refresh the access token when needed, using the refresh token.
 
-## Integrating with Claude Desktop, Cursor, and VsCode [Via Cline model extension](https://marketplace.visualstudio.com/items/?itemName=saoudrizwan.claude-dev)
+## Integrating with AI assistants
 
-To use your MCP server with Claude Desktop, add it to your Claude configuration:
+### Claude Desktop
+
+The easiest way to use the Spotify MCP server is with Claude Desktop. Start by locating the Claude configuration file, go to `Claude Settings`,click on `Developer` and then `Edit Config`. Add the following to the configuration with an absolute path to the server:
 
 ```json
 {
@@ -257,11 +267,15 @@ To use your MCP server with Claude Desktop, add it to your Claude configuration:
 }
 ```
 
+### Cursor
+
 For Cursor, go to the MCP tab in `Cursor Settings` (command + shift + J). Add a server with this command:
 
 ```bash
 node absolute/path/to/spotify-mcp/build/index.js
 ```
+
+### VsCode (via Cline)
 
 To set up your MCP correctly with Cline ensure you have the following file configuration set `cline_mcp_settings.json`:
 
@@ -272,6 +286,23 @@ To set up your MCP correctly with Cline ensure you have the following file confi
       "command": "node",
       "args": ["/absolute/path/to/spotify-mcp/build/index.js"],
       "autoApprove": ["getListeningHistory", "getNowPlaying"]
+    }
+  }
+}
+```
+
+You can add additional tools to the auto approval array to run the tools without intervention.
+
+### Windsurf
+
+In `Settings` then `Windsurf Settings` type `MCP` in the search bar. In the results MCP section click `add server` and then `add custom server`. Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "spotify": {
+      "command": "node",
+      "args": ["absolute/path/to/spotify-mcp/build/index.js"],
     }
   }
 }
